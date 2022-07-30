@@ -17,7 +17,10 @@ export class GetProfileData {
     const profiles = await ProfileModel.find()
     const newProfiles: IProfile[] = []
     
+    console.log(`Incio do JOB ${new Date()}\n`)
     console.log("Atualização de perfil...")
+
+    await PostModel.deleteMany()
 
     for await (const profile of profiles) {
       /**
@@ -40,7 +43,6 @@ export class GetProfileData {
         }
       )
 
-      await PostModel.deleteMany()
       
       await PostModel.insertMany(posts, { ordered: true })
 
@@ -66,7 +68,10 @@ export class GetProfileData {
 
     await storageProvider.updloadFile(`temp/${filename}.csv`, `${filename}.csv`)
 
-    console.log("Arquivo gerado com sucesso!")
+    console.log("Arquivo gerado com sucesso!\n")
+
+    console.log(`FIm do JOB ${new Date()}\n`)
+
     done();
   }
 }
