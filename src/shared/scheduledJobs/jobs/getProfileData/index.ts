@@ -1,9 +1,9 @@
 import ProfileModel, { IProfile } from '@modules/profiles/IProfileModel';
 import { Job } from 'agenda';
-import { Data365Provider } from 'providers/Data365Provider/implemantatios/Data365Provider';
-import { mappingProfileData } from 'utils/ mappingFunctions';
+import { Data365Provider } from '@shared/providers/Data365Provider/implemantatios/Data365Provider';
+import { StorageProvider } from '@shared/providers/StorageProvider/implemantations/StorageProvider';
+import { mappingProfileData } from '@shared/utils/mappingFunctions';
 import fs from 'fs';
-import { StorageProvider } from 'providers/StorageProvider/implemantations/StorageProvider';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';

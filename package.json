@@ -4,9 +4,15 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@babel/cli": "^7.18.9",
+    "@babel/core": "^7.18.9",
+    "@babel/node": "^7.18.9",
+    "@babel/preset-env": "^7.18.9",
+    "@babel/preset-typescript": "^7.18.6",
     "agenda": "^4.3.0",
     "aws-sdk": "^2.1185.0",
     "axios": "^0.27.2",
+    "babel-plugin-module-resolver": "^4.1.0",
     "dayjs": "^1.11.4",
     "dotenv-safe": "^8.2.0",
     "express": "^4.18.1",
@@ -17,7 +23,8 @@
     "reflect-metadata": "^0.1.13"
   },
   "scripts": {
-    "dev:server": "ts-node-dev -r tsconfig-paths/register --transpile-only --respawn --ignore node_modules src/server.ts"
+    "dev:server": "ts-node-dev -r tsconfig-paths/register --transpile-only --respawn --ignore node_modules src/server.ts",
+    "build": "babel src --extensions \".js,.ts\" --out-dir dist --copy-files"
   },
   "devDependencies": {
     "@types/dotenv-safe": "^8.1.2",

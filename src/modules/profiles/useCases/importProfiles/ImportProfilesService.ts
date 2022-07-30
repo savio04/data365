@@ -1,7 +1,7 @@
 import { Readable } from 'stream'
 import readline from 'readline'
-import { columnNames } from 'utils/constants'
-import { Data365Provider } from 'providers/Data365Provider/implemantatios/Data365Provider'
+import { columnNames } from '@shared/utils/constants'
+import { Data365Provider } from '@shared/providers/Data365Provider/implemantatios/Data365Provider'
 import ProfileModel from '@modules/profiles/IProfileModel'
 
 interface IRequest {

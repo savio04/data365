@@ -1,6 +1,6 @@
 import { config } from '@config/config';
 import axios, { AxiosInstance } from 'axios'
-import { APIS } from 'utils/constants';
+import { APIS } from '@shared/utils/constants';
 import { ICreateTask, IData365Provider } from "../IData365Provider";
 
 

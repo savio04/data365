@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import 'express-async-errors';
 import express from "express";
-import { connectDatabase } from "./database";
-import JobScheduler from './scheduledJobs';
 import { config } from '@config/config';
-import { routes } from 'routes';
+import { routes } from '@shared/routes';
+import { connectDatabase } from '@shared/database';
+import JobScheduler from '@shared/scheduledJobs';
 
 const app = express()
 

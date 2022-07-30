@@ -10,7 +10,7 @@
     "paths": {
       "@modules/*": ["./modules/*"],
       "@config/*": ["./config/*"],
-      "@database/*": ["./database/*"]
+      "@shared/*": ["./shared/*"]
     },
     "esModuleInterop": true,
     "experimentalDecorators": true,
