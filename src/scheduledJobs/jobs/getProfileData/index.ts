@@ -1,0 +1,72 @@
+import ProfileModel, { IProfile } from '@modules/profiles/IProfileModel';
+import { Job } from 'agenda';
+import { Data365Provider } from 'providers/Data365Provider/implemantatios/Data365Provider';
+import { mappingProfileData } from 'utils/ mappingFunctions';
+import fs from 'fs';
+import { StorageProvider } from 'providers/StorageProvider/implemantations/StorageProvider';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import PostModel from '@modules/posts/IPostsModel';
+
+export class GetProfileData {
+  public async handler(job: Job, done: () => void): Promise<any> {
+    const data365Provider = new Data365Provider();
+    const storageProvider = new StorageProvider();
+
+    const profiles = await ProfileModel.find()
+    const newProfiles: IProfile[] = []
+    
+    console.log("Atualização de perfil...")
+
+    for await (const profile of profiles) {
+      /**
+       * [x] Atualizar dados do perfil
+       * [x] Exportar csv
+       * [x] Salvar no S3
+       */
+
+      const response = await data365Provider.getDataProfile(profile.username)
+      const { profile: profileResponse, posts } = response as any;
+
+      const newProfile = Object.assign(profile.toObject(), profileResponse)
+
+      await ProfileModel.updateOne(
+        {
+          _id: profile._id
+        },
+        {
+          ...newProfile
+        }
+      )
+
+      await PostModel.deleteMany()
+      
+      await PostModel.insertMany(posts, { ordered: true })
+
+      newProfile['posts'] = posts
+
+      newProfiles.push(newProfile)
+    }
+
+    console.log("Atualização de perfil finalizada!")
+
+    console.log("Construindo csv...")
+    
+    const csvData = mappingProfileData(newProfiles)
+
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+
+    const filename = dayjs().format(`DD_MM_YYYY-HH:mm`)
+
+    fs.writeFile(`temp/${filename}.csv`, csvData, 'utf-8', (error) => {
+      if(error) console.log("error", error)
+    })
+
+    await storageProvider.updloadFile(`temp/${filename}.csv`, `${filename}.csv`)
+
+    console.log("Arquivo gerado com sucesso!")
+    done();
+  }
+}
