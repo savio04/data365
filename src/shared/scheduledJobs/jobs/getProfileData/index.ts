@@ -60,7 +60,7 @@ export class GetProfileData {
     dayjs.extend(utc);
     dayjs.extend(timezone);
 
-    const filename = dayjs().format(`DD_MM_YYYY-HH:mm`)
+    const filename = dayjs().local().format(`DD_MM_YYYY-HH:mm`)
 
     fs.writeFile(`temp/${filename}.csv`, csvData, 'utf-8', (error) => {
       if(error) console.log("error", error)
