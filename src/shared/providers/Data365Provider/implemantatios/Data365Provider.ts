@@ -33,12 +33,28 @@ export class Data365Provider implements IData365Provider {
     }
   }
 
+  async  getCommentsByPost(post: string) {
+    try {
+      const response = await this.api.get(`/${APIS.INSTAGRAM}/post/${post}/comments`, { 
+        params: {
+          access_token: config.DATA_365_ACCESS_TOKEN,
+          max_page_size: 100,
+          order_by: 'date_desc'
+        }
+      })
+
+      return response.data
+    }catch(error) {
+      console.log("error", error)
+    }
+  }
+
   async getPostsByProfile(user: string) {
     try {
       const response = await this.api.get(`/${APIS.INSTAGRAM}/profile/${user}/feed/posts`, { 
         params: {
           access_token: config.DATA_365_ACCESS_TOKEN,
-          max_page_size: 50,
+          max_page_size: 10,
           order_by: 'date_desc'
         }
       })

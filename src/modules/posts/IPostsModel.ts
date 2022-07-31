@@ -3,6 +3,7 @@ import mongoose, { Document } from "mongoose";
 export interface IPost {
   id?: any;
   _id?: any;
+  // username?: string;
   attached_carousel_media_urls: string[];
   attached_media_content: string[];
   attached_media_display_url: string;
@@ -33,6 +34,10 @@ interface IIPostDocument extends IPost, Document {}
 
 const PostSchema = new mongoose.Schema<IIPostDocument>(
   {
+    // username: {
+    //   type: String,
+    //   unique: true,
+    // },
     id: {
       type: String,
     },

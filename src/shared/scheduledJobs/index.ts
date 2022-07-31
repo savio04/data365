@@ -41,7 +41,7 @@ export default class JobScheduler {
 
     await agendajs.start();
 
-    await agendajs.every('1 day', 'get data for profile', { timezone: 'America/Sao_Paulo' });
+    await agendajs.every('0 8 * * *', 'get data for profile', {},{ timezone: 'America/Sao_Paulo' });
 
     return agendajs;
   }

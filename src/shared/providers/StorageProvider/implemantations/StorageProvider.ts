@@ -1,4 +1,4 @@
-import { IStorageProvider } from "../IStorageProvider";
+import { IStorageProvider, IUploadFileProps } from "../IStorageProvider";
 import { S3 } from 'aws-sdk';
 import { config } from "@config/config";
 import { resolve } from 'path'
@@ -18,13 +18,13 @@ export class StorageProvider implements IStorageProvider {
     })
   }
 
-  async updloadFile (path: string, filename: string) {
+  async updloadFile ({ filename, folder, path }: IUploadFileProps) {
     const orignalName = resolve(path)
 
     const fileContent = await fs.promises.readFile(orignalName)
 
     const newFile = await this.client.putObject({
-      Bucket: `${config.AWS_BUCKET_NAME}/Dados dos perfis`,
+      Bucket: `${config.AWS_BUCKET_NAME}/${folder}`,
       Key: filename,
       ACL: 'private',
       Body: fileContent,

@@ -1,3 +1,9 @@
+export interface IUploadFileProps {
+  folder: string;
+  path: string;
+  filename: string;
+}
+
 export interface IStorageProvider {
-  updloadFile: (path: string, filename: string) => Promise<any>;
+  updloadFile: (data: IUploadFileProps) => Promise<any>;
 }

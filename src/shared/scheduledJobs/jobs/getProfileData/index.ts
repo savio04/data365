@@ -7,7 +7,8 @@ import fs from 'fs';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import PostModel from '@modules/posts/IPostsModel';
+import PostModel, { IPost } from '@modules/posts/IPostsModel';
+import CommentModel, { IComment } from '@modules/comments/ICommentModel';
 
 export class GetProfileData {
   public async handler(job: Job, done: () => void): Promise<any> {
@@ -15,20 +16,19 @@ export class GetProfileData {
     const storageProvider = new StorageProvider();
 
     const profiles = await ProfileModel.find()
-    const newProfiles: IProfile[] = []
     
+    const allProfiles: IProfile[] = [];
+    const allPosts: IPost[] = [];
+    const allComments: IComment[] = [];
+
     console.log(`Incio do JOB ${new Date()}\n`)
     console.log("Atualização de perfil...")
 
     await PostModel.deleteMany()
+    await CommentModel.deleteMany()
 
+    //profile and posts
     for await (const profile of profiles) {
-      /**
-       * [x] Atualizar dados do perfil
-       * [x] Exportar csv
-       * [x] Salvar no S3
-       */
-
       const response = await data365Provider.getDataProfile(profile.username)
       const { profile: profileResponse, posts } = response as any;
 
@@ -43,30 +43,71 @@ export class GetProfileData {
         }
       )
 
-      
       await PostModel.insertMany(posts, { ordered: true })
 
-      newProfile['posts'] = posts
+      allProfiles.push(newProfile)
+      allPosts.push(...posts)
+    }
 
-      newProfiles.push(newProfile)
+
+    //comments
+    for await (const post of allPosts) {
+
+      const response = await data365Provider.getCommentsByPost(post.id)
+
+      const { items: comments } = response.data
+
+      await CommentModel.insertMany(comments, { ordered: true })
+
+      allComments.push(...comments)
     }
 
     console.log("Atualização de perfil finalizada!")
 
     console.log("Construindo csv...")
     
-    const csvData = mappingProfileData(newProfiles)
+    /**CSV */
+    const csvProfiles = mappingProfileData(allProfiles)
+    const csvPosts = mappingProfileData(allPosts)
+    const csvComments = mappingProfileData(allComments)
 
     dayjs.extend(utc);
     dayjs.extend(timezone);
 
     const filename = dayjs().local().format(`DD_MM_YYYY-HH:mm`)
 
-    fs.writeFile(`temp/${filename}.csv`, csvData, 'utf-8', (error) => {
+    //Profiles
+    fs.writeFile(`temp/${filename}.csv`, csvProfiles, 'utf-8', (error) => {
+      if(error) console.log("error", error)
+    })
+    
+    await storageProvider.updloadFile({
+      filename: `profiles_${filename}.csv`,
+      folder: 'Dados dos perfis',
+      path: `temp/${filename}.csv`
+    })
+
+    //Posts
+    fs.writeFile(`temp/${filename}.csv`, csvPosts, 'utf-8', (error) => {
       if(error) console.log("error", error)
     })
 
-    await storageProvider.updloadFile(`temp/${filename}.csv`, `${filename}.csv`)
+    await storageProvider.updloadFile({
+      filename: `posts_${filename}.csv`,
+      folder: 'Dados dos posts',
+      path: `temp/${filename}.csv`
+    })
+
+    //Comments
+    fs.writeFile(`temp/${filename}.csv`, csvComments, 'utf-8', (error) => {
+      if(error) console.log("error", error)
+    })
+
+    await storageProvider.updloadFile({
+      filename: `comments_${filename}.csv`,
+      folder: 'Dados dos comentarios',
+      path: `temp/${filename}.csv`
+    })
 
     console.log("Arquivo gerado com sucesso!\n")
 
