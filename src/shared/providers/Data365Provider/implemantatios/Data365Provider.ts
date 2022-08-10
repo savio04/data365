@@ -1,7 +1,7 @@
 import { config } from '@config/config';
 import axios, { AxiosInstance } from 'axios'
 import { APIS } from '@shared/utils/constants';
-import { ICreateTask, IData365Provider } from "../IData365Provider";
+import { ICreateTask, IData365Provider, IGetPostsByProfile } from "../IData365Provider";
 
 
 export class Data365Provider implements IData365Provider {
@@ -49,12 +49,12 @@ export class Data365Provider implements IData365Provider {
     }
   }
 
-  async getPostsByProfile(user: string) {
+  async getPostsByProfile({ user, from_date }: IGetPostsByProfile) {
     try {
       const response = await this.api.get(`/${APIS.INSTAGRAM}/profile/${user}/feed/posts`, { 
         params: {
           access_token: config.DATA_365_ACCESS_TOKEN,
-          max_page_size: 10,
+          from_date,
           order_by: 'date_desc'
         }
       })
@@ -74,15 +74,8 @@ export class Data365Provider implements IData365Provider {
       })
 
       const { data: profileData } = responseProfileData.data
-
-      const responsePostsByProfile = await this.getPostsByProfile(profileData.id)
       
-      const { items: postsData } = responsePostsByProfile.data
-      
-      return {
-        profile: profileData,
-        posts: postsData
-      }
+      return profileData
     }catch(error) {
       console.log("error", error)
     }

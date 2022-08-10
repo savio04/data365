@@ -4,7 +4,7 @@ import { IProfile } from "@modules/profiles/IProfileModel";
 import { Parser } from 'json2csv';
 
 export function mappingProfileData (data: IProfile[] | IPost[] | IComment[]) {
-  const json2csvParser = new Parser()
+  const json2csvParser = new Parser({ excelStrings: true, withBOM: true })
 
   const csvData = json2csvParser.parse(data)
 

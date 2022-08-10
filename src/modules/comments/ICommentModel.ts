@@ -3,13 +3,12 @@ import mongoose, { Mongoose } from "mongoose";
 export interface IComment {
   _id?: any;
   id?: any;
-  // username?: string;
   comments_count: Number;
-  created_time: String;
+  created_time: string;
   likes_count: Number;
-  owner_id: String;
-  parent_id: String;
-  text: String;
+  owner_id: string;
+  parent_id: string;
+  text: string;
   timestamp: Number;
 }
 

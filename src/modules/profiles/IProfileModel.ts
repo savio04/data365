@@ -3,6 +3,7 @@ import mongoose, { Document } from "mongoose";
 export interface IProfile {
   id?: any;
   _id?: any;
+  commented_on?: string;
   username: string;
   age_approx: string;
   age_group: string;

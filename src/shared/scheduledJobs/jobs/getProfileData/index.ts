@@ -1,38 +1,33 @@
 import ProfileModel, { IProfile } from '@modules/profiles/IProfileModel';
 import { Job } from 'agenda';
 import { Data365Provider } from '@shared/providers/Data365Provider/implemantatios/Data365Provider';
-import { StorageProvider } from '@shared/providers/StorageProvider/implemantations/StorageProvider';
-import { mappingProfileData } from '@shared/utils/mappingFunctions';
-import fs from 'fs';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 import PostModel, { IPost } from '@modules/posts/IPostsModel';
 import CommentModel, { IComment } from '@modules/comments/ICommentModel';
-
+import { CSVGeneration } from '@shared/utils/ csvGeneration';
+import { DayjsDateProvider } from '@shared/providers/DateProvider/implementations/DayjsDateProvider';
 export class GetProfileData {
   public async handler(job: Job, done: () => void): Promise<any> {
     const data365Provider = new Data365Provider();
-    const storageProvider = new StorageProvider();
 
     const profiles = await ProfileModel.find()
     
     const allProfiles: IProfile[] = [];
     const allPosts: IPost[] = [];
     const allComments: IComment[] = [];
+    const allProfilesThatCommented: IProfile[] = [] 
 
     console.log(`Incio do JOB ${new Date()}\n`)
-    console.log("Atualização de perfil...")
+    console.log("Capturando perfis e posts...")
+    
+    const dayjsDateProvider = new DayjsDateProvider();
 
-    await PostModel.deleteMany()
-    await CommentModel.deleteMany()
+    const last_day = dayjsDateProvider.subtractDays(new Date(), 1);
 
     //profile and posts
     for await (const profile of profiles) {
-      const response = await data365Provider.getDataProfile(profile.username)
-      const { profile: profileResponse, posts } = response as any;
+      const profileData = await data365Provider.getDataProfile(profile.username)
 
-      const newProfile = Object.assign(profile.toObject(), profileResponse)
+      const newProfile = Object.assign(profile.toObject(), profileData)
 
       await ProfileModel.updateOne(
         {
@@ -43,73 +38,57 @@ export class GetProfileData {
         }
       )
 
-      await PostModel.insertMany(posts, { ordered: true })
+      const responsePostsByProfile = await data365Provider.getPostsByProfile({ user: profileData.id, from_date: last_day })
+      
+      const { items: postsData } = responsePostsByProfile.data
 
       allProfiles.push(newProfile)
-      allPosts.push(...posts)
+      allPosts.push(...postsData)
     }
 
-
+    console.log("Captura de perfis e posts finalizada!")
+    
     //comments
+    console.log("Capturando comentarios...")
+
     for await (const post of allPosts) {
 
       const response = await data365Provider.getCommentsByPost(post.id)
 
       const { items: comments } = response.data
 
-      await CommentModel.insertMany(comments, { ordered: true })
-
       allComments.push(...comments)
     }
 
-    console.log("Atualização de perfil finalizada!")
+    console.log("Captura de comentarios finalizada!")
 
+    //Perfils que comentaram
+    console.log("Capturando perfis que comentaram...")
+
+    const filterComments = allComments.filter((item, index) => allComments.indexOf(item) === index)
+
+    for await (const comment of filterComments) {
+      const profileData = await data365Provider.getDataProfile(comment.owner_id)
+
+      profileData.commented_on = comment.id;
+      
+      if(!allProfilesThatCommented.find(item => item.id === comment.owner_id))
+        allProfilesThatCommented.push(profileData)
+    }
+
+    console.log("Captura de perfis finalizada!")
+
+    //CSV
     console.log("Construindo csv...")
     
-    /**CSV */
-    const csvProfiles = mappingProfileData(allProfiles)
-    const csvPosts = mappingProfileData(allPosts)
-    const csvComments = mappingProfileData(allComments)
-
-    dayjs.extend(utc);
-    dayjs.extend(timezone);
-
-    const filename = dayjs().local().format(`DD_MM_YYYY-HH:mm`)
-
-    //Profiles
-    fs.writeFile(`temp/${filename}.csv`, csvProfiles, 'utf-8', (error) => {
-      if(error) console.log("error", error)
-    })
-    
-    await storageProvider.updloadFile({
-      filename: `profiles_${filename}.csv`,
-      folder: 'Dados dos perfis',
-      path: `temp/${filename}.csv`
+    await CSVGeneration({
+      allProfiles,
+      allPosts,
+      allComments,
+      allProfilesThatCommented
     })
 
-    //Posts
-    fs.writeFile(`temp/${filename}.csv`, csvPosts, 'utf-8', (error) => {
-      if(error) console.log("error", error)
-    })
-
-    await storageProvider.updloadFile({
-      filename: `posts_${filename}.csv`,
-      folder: 'Dados dos posts',
-      path: `temp/${filename}.csv`
-    })
-
-    //Comments
-    fs.writeFile(`temp/${filename}.csv`, csvComments, 'utf-8', (error) => {
-      if(error) console.log("error", error)
-    })
-
-    await storageProvider.updloadFile({
-      filename: `comments_${filename}.csv`,
-      folder: 'Dados dos comentarios',
-      path: `temp/${filename}.csv`
-    })
-
-    console.log("Arquivo gerado com sucesso!\n")
+    console.log("Arquivos gerados com sucesso!\n")
 
     console.log(`FIm do JOB ${new Date()}\n`)
 
