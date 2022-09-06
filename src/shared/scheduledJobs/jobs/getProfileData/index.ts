@@ -21,29 +21,39 @@ export class GetProfileData {
     
     const dayjsDateProvider = new DayjsDateProvider();
 
-    const last_day = dayjsDateProvider.subtractDays(new Date(), 1);
+    const last_day = dayjsDateProvider.subtractDays(new Date(), 1)
 
     //profile and posts
     for await (const profile of profiles) {
-      const profileData = await data365Provider.getDataProfile(profile.username)
+      try{
+        const profileData = await data365Provider.getDataProfile(profile.username)
+  
+        const newProfile = Object.assign(profile.toObject(), profileData)
+  
+        await ProfileModel.updateOne(
+          {
+            _id: profile._id
+          },
+          {
+            ...newProfile
+          }
+        )
+  
+        const responsePostsByProfile = await data365Provider.getPostsByProfile({ user: profileData.id, from_date: last_day })
+        
+        const { items: postsData } = responsePostsByProfile.data
 
-      const newProfile = Object.assign(profile.toObject(), profileData)
+        await PostModel.insertMany(
+          postsData,
+          { ordered: true }
+        )
 
-      await ProfileModel.updateOne(
-        {
-          _id: profile._id
-        },
-        {
-          ...newProfile
-        }
-      )
-
-      const responsePostsByProfile = await data365Provider.getPostsByProfile({ user: profileData.id, from_date: last_day })
-      
-      const { items: postsData } = responsePostsByProfile.data
-
-      allProfiles.push(newProfile)
-      allPosts.push(...postsData)
+        allProfiles.push(newProfile)
+        allPosts.push(...postsData)
+      }catch(error) {
+        console.log(`perfil não econtrado ${profile.username}`);
+        continue;
+      }
     }
 
     console.log("Captura de perfis e posts finalizada!")
@@ -53,27 +63,51 @@ export class GetProfileData {
 
     for await (const post of allPosts) {
 
-      const response = await data365Provider.getCommentsByPost(post.id)
+      try {
+        const response = await data365Provider.getCommentsByPost({
+          post: post.id,
+          from_date: last_day
+        })
+  
+        const { items: comments } = response.data
+  
+        await CommentModel.insertMany(
+          comments,
+          { ordered: true }
+        )
 
-      const { items: comments } = response.data
+        allComments.push(...comments)
 
-      allComments.push(...comments)
+        for(const comment of comments) {
+          await data365Provider.createUpdateTask({ userId: comment.owner_id })
+        }
+      }catch(error) {
+        console.log("error no comments")
+        continue;
+      }
     }
 
     console.log("Captura de comentarios finalizada!")
 
+    //Atualização de perfis
+
     //Perfils que comentaram
     console.log("Capturando perfis que comentaram...")
 
-    const filterComments = allComments.filter((item, index) => allComments.indexOf(item) === index)
-
-    for await (const comment of filterComments) {
-      const profileData = await data365Provider.getDataProfile(comment.owner_id)
-
-      profileData.commented_on = comment.id;
-      
-      if(!allProfilesThatCommented.find(item => item.id === comment.owner_id))
-        allProfilesThatCommented.push(profileData)
+    // const filterComments = allComments.filter((item, index) => allComments.indexOf(item) === index)
+    console.log("Número totla de comentatios hoje: ",allComments.length)
+    for await (const comment of allComments) {
+      try{
+        const profileData = await data365Provider.getDataProfile(comment.owner_id)
+  
+        profileData.commented_on = comment.id;
+        
+        if(!allProfilesThatCommented.find(item => item.id === comment.owner_id))
+          allProfilesThatCommented.push(profileData)
+      }catch(error) {
+        console.log("error all comments profile")
+        continue;
+      }
     }
 
     console.log("Captura de perfis finalizada!")

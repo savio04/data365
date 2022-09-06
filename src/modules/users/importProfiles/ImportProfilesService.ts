@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import readline from 'readline'
 import { columnNames } from '@shared/utils/constants'
 import { Data365Provider } from '@shared/providers/Data365Provider/implemantatios/Data365Provider'
-import ProfileModel from '@modules/profiles/IProfileModel'
+import { UserModel } from '@modules/users/IUserModel'
 
 interface IRequest {
   file: Express.Multer.File | undefined
@@ -34,18 +34,20 @@ export class ImportProfilesService {
 
         if(!columnNames.includes(username)) {
           const newCandidate = {
-            username
+            instagramPage: username,
+            realName: username
           }
 
           try{
-            const usernameAlreadyExists = await ProfileModel.findOne({ username })
+            const usernameAlreadyExists = await UserModel.findOne({ instagramPage: username })
             
             if(!usernameAlreadyExists) {
-              await data365Provider.createUpdateTask({ username })
-              await new ProfileModel(newCandidate).save()
+              data365Provider.createUpdateTask({ username })
+              await new UserModel(newCandidate).save()
             }
 
           } catch(error) {
+            console.log("error", error)
             console.log(`Verifique o nome: ${username}, pois ocorreu um erro`)
           }
         }

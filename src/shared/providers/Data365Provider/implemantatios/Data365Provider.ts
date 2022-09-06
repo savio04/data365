@@ -1,7 +1,7 @@
 import { config } from '@config/config';
 import axios, { AxiosInstance } from 'axios'
 import { APIS } from '@shared/utils/constants';
-import { ICreateTask, IData365Provider, IGetPostsByProfile } from "../IData365Provider";
+import { ICreateTask, IData365Provider, IGetCommentsByPost, IGetPostsByProfile } from "../IData365Provider";
 
 
 export class Data365Provider implements IData365Provider {
@@ -22,7 +22,8 @@ export class Data365Provider implements IData365Provider {
           params: {
             access_token: config.DATA_365_ACCESS_TOKEN,
             load_feed_posts: 1,
-            load_comments: 1
+            load_comments: 1,
+            auto_update_interval: 43200 //segundos
           }
         }
       )
@@ -30,22 +31,23 @@ export class Data365Provider implements IData365Provider {
       return response.data
     }catch(error) {
       console.log("error", error)
+      console.log("ERROR")
     }
   }
 
-  async  getCommentsByPost(post: string) {
+  async  getCommentsByPost({ post, from_date }: IGetCommentsByPost) {
     try {
       const response = await this.api.get(`/${APIS.INSTAGRAM}/post/${post}/comments`, { 
         params: {
           access_token: config.DATA_365_ACCESS_TOKEN,
-          max_page_size: 100,
+          from_date,
           order_by: 'date_desc'
         }
       })
 
       return response.data
     }catch(error) {
-      console.log("error", error)
+      console.log("ERROR")
     }
   }
 
@@ -61,7 +63,7 @@ export class Data365Provider implements IData365Provider {
 
       return response.data
     }catch(error) {
-      console.log("error", error)
+      console.log("ERROR")
     }
   }
 
@@ -77,7 +79,7 @@ export class Data365Provider implements IData365Provider {
       
       return profileData
     }catch(error) {
-      console.log("error", error)
+      console.log("ERROR")
     }
   }
 }

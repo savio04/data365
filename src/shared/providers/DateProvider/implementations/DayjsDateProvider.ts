@@ -36,9 +36,8 @@ export class DayjsDateProvider implements IDateProvider {
     return dayjs(date).add(days, 'days').toDate();
   }
 
-  subtractDays(date: Date | number, days: number): Date {
-    console.log('locale', dayjs.locale())
-    return dayjs().subtract(days, 'days').toDate();
+  subtractDays(date: Date | number, days: number): string {
+    return dayjs().subtract(days, 'days').format('YYYY-MM-DD')
   }
 
   addHours(date: Date, hours: number): Date {

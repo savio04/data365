@@ -1,4 +1,4 @@
-import { ImportProfilesController } from "@modules/profiles/useCases/importProfiles/ImportProfilesController";
+import { ImportProfilesController } from "@modules/users/importProfiles/ImportProfilesController";
 import { Router } from "express";
 import multer from 'multer';
 
