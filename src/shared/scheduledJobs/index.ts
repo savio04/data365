@@ -38,13 +38,11 @@ export default class JobScheduler {
     }
 
     // Jobs
-    agendajs.define('profile update task', new CreateUpdateTasks().handler)
     agendajs.define('get data for profile', new GetProfileData().handler);
 
     await agendajs.start();
 
-    await agendajs.every('30 7 * * *', 'get data for profile', {},{ timezone: 'America/Sao_Paulo' });
-    await agendajs.every('30 5 * * *', 'profile update task', {},{ timezone: 'America/Sao_Paulo' });
+    await agendajs.every('5 * * * *', 'get data for profile', {},{ timezone: 'America/Sao_Paulo' });
     
     return agendajs;
   }
