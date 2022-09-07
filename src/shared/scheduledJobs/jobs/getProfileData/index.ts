@@ -1,13 +1,16 @@
+import axios from 'axios';
+import crypto from 'crypto';
 import { Job } from "agenda";
 import { Data365Provider } from "@shared/providers/Data365Provider/implemantatios/Data365Provider";
-import PostModel, { IPost } from "@modules/posts/IPostsModel";
-import { mapProfile } from "@shared/utils/mappingFunctions";
-import crypto from 'crypto';
-import axios from 'axios';
+import { mapPost, mapProfile } from "@shared/utils/mappingFunctions";
+import { UserModel } from "@modules/users/IUserModel";
+import { StorageProvider } from "@shared/providers/StorageProvider/implemantations/StorageProvider";
+import PostModel from '@modules/posts/IPostsModel';
 
 export class GetProfileData {
   public async handler(job: Job, done: () => void): Promise<any> {
     const data365Provider = new Data365Provider();
+    const storageProvider = new StorageProvider()
 
     const profiles = await UserModel.find({ instagramPage: { $exists: true } });
 
@@ -37,7 +40,7 @@ export class GetProfileData {
                 .split("/")
                 .pop();
 
-              updloadFile({
+              storageProvider.updloadFile({
                 filename: `${id}.${extension}`,
                 folder: "image/profile",
                 fileContent: responseProfile.data,
@@ -67,10 +70,10 @@ export class GetProfileData {
 
           const { items: postsData } = responsePostsByProfile.data;
 
-          const mappedPosts = await mapPost(postsData, newProfile._id);
+          const mappedPosts = await mapPost(postsData, String(newProfile._id));
 
           for await (const post of mappedPosts) {
-            if (post.mediaDisplayUrls.length > 0) {
+            if (post?.mediaDisplayUrls && post.mediaDisplayUrls?.length > 0) {
               const images = [];
               for await (const mediaDisplayUrl of post.mediaDisplayUrls) {
                 try {
@@ -82,7 +85,7 @@ export class GetProfileData {
                     .split("/")
                     .pop();
 
-                  updloadFile({
+                  storageProvider.updloadFile({
                     filename: `${id}.${extension}`,
                     folder: "image/post",
                     fileContent: responseData.data,
@@ -109,13 +112,14 @@ export class GetProfileData {
                   .split("/")
                   .pop();
 
-                updloadFile({
+                storageProvider.updloadFile({
                   filename: `${id}.${extension}`,
                   folder: "video/post",
                   fileContent: responseData.data,
                 });
 
                 post["video"] = `${FILES_URL}/video/post/${id}.${extension}`;
+                delete post['attachedVideUrl']
               } catch (error) {
                 continue;
               }
@@ -132,7 +136,7 @@ export class GetProfileData {
     }
 
     console.log("Captura de perfis e posts finalizada!");
-
+    console.log(`Fim do JOB ${new Date()}\n`);
     done();
   }
 }

@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { inputRoutes } from './input.routes'
+// import { inputRoutes } from './input.routes'
 
 export const routes = Router()
 
-routes.use('/input', inputRoutes)
+// routes.use('/input', inputRoutes)

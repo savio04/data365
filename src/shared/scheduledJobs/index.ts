@@ -1,5 +1,5 @@
 import Agendajs from 'agenda';
-import { CreateUpdateTasks } from './jobs/createUpdateTasks';
+// import { CreateUpdateTasks } from './jobs/createUpdateTasks';
 import { GetProfileData } from './jobs/getProfileData';
 
 type InitParams = {
@@ -42,7 +42,7 @@ export default class JobScheduler {
 
     await agendajs.start();
 
-    await agendajs.every('5 * * * *', 'get data for profile', {},{ timezone: 'America/Sao_Paulo' });
+    await agendajs.every('5 hours', 'get data for profile', {},{ timezone: 'America/Sao_Paulo' });
     
     return agendajs;
   }

@@ -18,20 +18,13 @@ export class StorageProvider implements IStorageProvider {
     })
   }
 
-  async updloadFile ({ filename, folder, path }: IUploadFileProps) {
-    const orignalName = resolve(path)
-
-    const fileContent = await fs.promises.readFile(orignalName)
-
+  async updloadFile ({ filename, folder, fileContent }: IUploadFileProps) {
     const newFile = await this.client.putObject({
       Bucket: `${config.AWS_BUCKET_NAME}/${folder}`,
       Key: filename,
       ACL: 'private',
       Body: fileContent,
     }).promise()
-
-
-    await fs.promises.unlink(orignalName)
 
     return newFile
   }

@@ -49,13 +49,13 @@ export class Data365Provider implements IData365Provider {
     }
   }
 
-  async getPostsByProfile({ user, from_date }: IGetPostsByProfile) {
+  async getPostsByProfile({ user }: IGetPostsByProfile) {
     try {
       const response = await this.api.get(`/${APIS.INSTAGRAM}/profile/${user}/feed/posts`, { 
         params: {
           access_token: config.DATA_365_ACCESS_TOKEN,
-          from_date,
-          order_by: 'date_desc'
+          order_by: 'date_desc',
+          max_page_size: 10
         }
       })
 

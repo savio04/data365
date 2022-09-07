@@ -1,122 +1,106 @@
+import { PostContentTypes, PostStatus, PostTypes } from "@shared/utils/constants";
 import mongoose, { Document } from "mongoose";
 
 export interface IPost {
   id?: any;
   _id?: any;
-  // username?: string;
-  attached_carousel_media_urls: string[];
-  attached_media_content: string[];
-  attached_media_display_url: string;
-  attached_media_tagged_users: string[];
-  attached_video_url: string;
-  comments_count: number;
-  created_time: string;
-  is_comments_disabled: boolean;
-  is_video: boolean;
-  likes_count: number;
-  location_id: string;
-  owner_id: string;
-  product_type: string;
-  related_posts: string[];
-  shortcode: string;
-  sponsors: string[];
-  text: string;
-  text_lang: string;
-  text_tagged_users: string[];
-  text_tags: string[];
-  timestamp: number;
-  video_plays_count: number;
-  video_views_count: number;
-  posts?: IPost[];
+  authorId: any;
+  ownerId: any;
+  status: any;
+  type: any;
+  contentType: any;
+  socialId: any;
+  title: any;
+  body: any;
+  images: string[];
+  video: any;
+  audio: any;
+  videoThumbnail: any;
+  commentCount: any;
+  likesCount: any;
+  shareCount: any;
+  reportCount: any;
+  og: any;
+  reports: any;
+  likes: any;
+  shares: any;
+  hashtags: any;
+  eventDate: Date;
+  eventLink: any;
+  eventLocation: any;
+  visibleOnFeed: any;
 }
-
 interface IIPostDocument extends IPost, Document {}
 
 const PostSchema = new mongoose.Schema<IIPostDocument>(
   {
-    // username: {
-    //   type: String,
-    //   unique: true,
-    // },
-    id: {
+    authorId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    status: {
       type: String,
+      enum: PostStatus,
+      required: true,
+      default: PostStatus.Published,
     },
-    attached_carousel_media_urls: {
+    type: {
+      type: String,
+      enum: PostTypes,
+      required: true,
+      default: PostTypes.Regular,
+    },
+    contentType: {
+      type: String,
+      enum: PostContentTypes,
+      required: true,
+      default: PostContentTypes.Regular,
+    },
+    socialId: { type: String, trim: true },
+    title: { type: String, trim: true },
+    body: { type: String, trim: true },
+    images: [{ type: String, trim: true }],
+    video: { type: String, trim: true },
+    audio: { type: String, trim: true },
+    videoThumbnail: { type: String, trim: true },
+    commentCount: { type: Number, default: 0 },
+    likesCount: { type: Number, default: 0 },
+    shareCount: { type: Number, default: 0 },
+    reportCount: { type: Number, default: 0 },
+    og: {
+      ogLink: String,
+      ogImage: String,
+      ogTitle: String,
+      ogDescription: String,
+    },
+    reports: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
+    likes: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
+    shares: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+    },
+    hashtags: {
       type: [String],
+      default: [],
     },
-    attached_media_content: {
-      type: [String],
-    },
-    attached_media_display_url: {
-      type: String,
-    },
-    attached_media_tagged_users: {
-      type: [String],
-    },
-    attached_video_url: {
-      type: String,
-    },
-    comments_count: {
-      type: Number,
-    },
-    created_time: {
-      type: String,
-    },
-    is_comments_disabled: {
+    eventDate: Date,
+    eventLink: { type: String, trim: true },
+    eventLocation: { type: String, trim: true },
+    visibleOnFeed: {
       type: Boolean,
-    },
-    is_video: {
-      type: Boolean,
-    },
-    likes_count: {
-      type: Number,
-    },
-    location_id: {
-      type: String,
-    },
-    owner_id: {
-      type: String,
-    },
-    product_type: {
-      type: String,
-    },
-    related_posts: {
-      type: [String],
-    },
-    shortcode: {
-      type: String,
-    },
-    sponsors: {
-      type: [String],
-    },
-    text: {
-      type: String,
-    },
-    text_lang: {
-      type: String,
-    },
-    text_tagged_users: {
-      type: [String],
-    },
-    text_tags: {
-      type: [String],
-    },
-    timestamp: {
-      type: Number,
-    },
-    video_plays_count: {
-      type: Number,
-    },
-    video_views_count: {
-      type: Number,
+      default: true,
     },
   },
   {
+    strict: true,
     timestamps: {
       createdAt: "createdAt",
       updatedAt: "updatedAt",
     },
-    collection: "posts",
   }
 );
 
