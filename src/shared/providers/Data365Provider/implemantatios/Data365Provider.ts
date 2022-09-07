@@ -23,7 +23,7 @@ export class Data365Provider implements IData365Provider {
             access_token: config.DATA_365_ACCESS_TOKEN,
             load_feed_posts: 1,
             load_comments: 1,
-            auto_update_interval: 43200 //segundos
+            auto_update_interval: 10800 //segundos
           }
         }
       )

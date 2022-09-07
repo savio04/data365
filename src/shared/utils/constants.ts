@@ -5,7 +5,9 @@ export enum APIS {
 }
 
 export const columnNames = [
-  'username'
+  'username',
+  'UF',
+  'name'
 ]
 
 export enum UserTypes {
@@ -20,4 +22,18 @@ export enum UserStatus {
   Incomplete = 'INCOMPLETE',
   Blocked = 'BLOCKED',
   Deleted = 'DELETED',
+};
+
+export enum PageTypes {
+  Presidente = 'PRESIDENTE',
+  Governador = 'GOVERNADOR',
+  ViceGovernador = 'VICE_GOVERNADOR',
+  Senador = 'SENADOR',
+  DeputadoFederal = 'DEPUTADO_FEDERAL',
+  DeputadoEstadual = 'DEPUTADO_ESTADUAL',
+  Prefeito = 'PREFEITO',
+  VicePrefeito = 'VICE_PREFEITO',
+  Vereador = 'VEREADOR',
+  Sistema = 'SISTEMA',
+  Comercial = 'COMERCIAL',
 };

@@ -1,4 +1,4 @@
-import { UserStatus, UserTypes } from "@shared/utils/constants";
+import { PageTypes, UserStatus, UserTypes } from "@shared/utils/constants";
 import mongoose, { Document, Model } from "mongoose";
 
 export interface IUser {
@@ -40,6 +40,7 @@ export interface IUser {
   pagesBlocked: any;
   chatRooms: any;
   referralCode: any;
+  pageType: any;
 
   // Page
   realName: any;
@@ -113,6 +114,11 @@ const UserSchema = new mongoose.Schema<IUserDocument>(
     phoneValidated: {
       type: Boolean,
       default: false,
+    },
+    pageType: {
+      type: String,
+      enum:PageTypes
+      // required: true,
     },
     dob: Date,
     userImage: { type: String, trim: true },

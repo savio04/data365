@@ -18,24 +18,24 @@ export default class JobScheduler {
 
     await agendajs._ready;
 
-    try {
-      const indexExists = await agendajs._collection.indexExists('findAndLockNextJobIndex');
+    // try {
+    //   const indexExists = await agendajs._collection.indexExists('findAndLockNextJobIndex');
 
-      if(!indexExists) {
-        await agendajs._collection.createIndex({
-          disabled: 1,
-          lockedAt: 1,
-          name: 1,
-          nextRunAt: 1,
-          priority: -1
-        }, {
-            name: 'findAndLockNextJobIndex'
-          });
-      }
-    } catch (err) {
-      console.log('Failed to create agendajs index!', err);
-      throw err;
-    }
+    //   if(!indexExists) {
+    //     await agendajs._collection.createIndex({
+    //       disabled: 1,
+    //       lockedAt: 1,
+    //       name: 1,
+    //       nextRunAt: 1,
+    //       priority: -1
+    //     }, {
+    //         name: 'findAndLockNextJobIndex'
+    //       });
+    //   }
+    // } catch (err) {
+    //   console.log('Failed to create agendajs index!', err);
+    //   throw err;
+    // }
 
     // Jobs
     // agendajs.define('profile update task', new CreateUpdateTasks().handler)
