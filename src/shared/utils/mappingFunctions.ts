@@ -11,7 +11,7 @@ export function mappingProfileData (data: IProfile[] | IPost[] | IComment[]) {
   return csvData
 }
 
-function mapProfile(profile) {
+export function mapProfile(profile) {
   const profileMapped = {
     name: profile.username,
     realName: profile.full_name,
@@ -29,7 +29,7 @@ function mapProfile(profile) {
   return profileMapped
 }
 
-async function mapPost(posts, userId) {
+export async function mapPost(posts, userId) {
   const newPosts = []
 
   for await (const post of posts) {
