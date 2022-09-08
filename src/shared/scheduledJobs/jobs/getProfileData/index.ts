@@ -14,6 +14,8 @@ export class GetProfileData {
 
     const profiles = await UserModel.find({ instagramPage: { $exists: true } });
 
+    console.log("Número de Perfis", profiles.length)
+
     const { FILES_URL } = process.env;
 
     console.log(`Incio do JOB ${new Date()}\n`);
@@ -129,7 +131,7 @@ export class GetProfileData {
           await PostModel.insertMany(mappedPosts, { ordered: true });
         } catch (error) {
           console.log("error", error);
-          console.log(`perfil não econtrado ${profile.name}`);
+          console.log(`perfil não econtrado ${profile.instagramPage}`);
           continue;
         }
       }
