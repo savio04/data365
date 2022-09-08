@@ -15,10 +15,10 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(routes)
 
-JobScheduler.init({
-  mongoURI: config.MONGO_URI,
-  collection: 'scheduledJobs'
-});
+// JobScheduler.init({
+//   mongoURI: config.MONGO_URI,
+//   collection: 'scheduledJobs'
+// });
 
 app.post('/test', (request, response) => {
   console.log("request", request.body)

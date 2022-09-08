@@ -48,7 +48,7 @@ export class ImportProfilesService {
       console.log("Importação em progresso...");
 
       for await (const line of linesFile) {
-        const [UF, name, username, party, nomeUrna, number, pageType, email] = line.split(",");
+        const [UF, name, username, party, nomeUrna, number, pageType, email, cpf] = line.split(",");
 
         if (!columnNames.includes(username)) {
           const newCandidate = {
@@ -57,8 +57,9 @@ export class ImportProfilesService {
             state: UF,
             party,
             nomeUrna,
-            number,
-            email: email !== "NULL" ? email.toLowerCase() : ""
+            number: number !== "NULL" ? number : "",
+            email: email !== "NULL" ? email.toLowerCase() : "",
+            cpf: cpf !== "NULL" ? cpf: ""
           } as any;
 
           if(mapPageType[pageType]) {
