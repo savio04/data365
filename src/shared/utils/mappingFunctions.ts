@@ -35,7 +35,7 @@ export function mapProfile(profile: any) {
     profielPhotoUrl: profile.profile_photo_url,
     userStatus: UserStatus.Incomplete,
     userType: UserTypes.Candidate,
-    nomeUrna: profile.full_name
+    // nomeUrna: profile.full_name
   }
 
   return profileMapped
