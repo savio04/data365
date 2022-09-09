@@ -52,7 +52,7 @@ export class GetProfileData {
 
               newProfile["userImage"] = `image/profile/${id}.${extension}`;
             } catch (error) {
-              console.log(`profile image not found ${profile.name}`);
+              console.log(`profile image not found ${profile.instagramPage}`);
               continue;
             }
           }
@@ -74,6 +74,8 @@ export class GetProfileData {
 
           const mappedPosts = await mapPost(postsData, String(newProfile._id));
 
+          const promises: any[] = []
+
           for await (const post of mappedPosts) {
             if (post?.mediaDisplayUrls && post.mediaDisplayUrls?.length > 0) {
               const images = [];
@@ -87,11 +89,11 @@ export class GetProfileData {
                     .split("/")
                     .pop();
 
-                  await storageProvider.updloadFile({
+                  promises.push(storageProvider.updloadFile({
                     filename: `${id}.${extension}`,
                     folder: "image/post",
                     fileContent: responseData.data,
-                  });
+                  }))
 
                   images.push(`${FILES_URL}/image/post/${id}.${extension}`);
                 } catch (error) {
@@ -114,11 +116,11 @@ export class GetProfileData {
                   .split("/")
                   .pop();
 
-                storageProvider.updloadFile({
+                promises.push(storageProvider.updloadFile({
                   filename: `${id}.${extension}`,
                   folder: "video/post",
                   fileContent: responseData.data,
-                });
+                }))
 
                 post["video"] = `${FILES_URL}/video/post/${id}.${extension}`;
                 delete post['attachedVideUrl']
@@ -128,10 +130,11 @@ export class GetProfileData {
             }
           }
 
-          console.log(`Numero de novos posts do(a) ${profile.instagramPage}: ${mappedPosts.length}`)
+          console.log(`Novos posts do ${profile.instagramPage}: `, mappedPosts.length)
           await PostModel.insertMany(mappedPosts, { ordered: true });
+          Promise.all(promises)
         } catch (error) {
-          // console.log("error", error);
+          console.log("error", error);
           console.log(`perfil não econtrado ${profile.instagramPage}`);
           continue;
         }
