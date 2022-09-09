@@ -128,6 +128,7 @@ export class GetProfileData {
             }
           }
 
+          console.log(`Numero de novos posts do(a) ${profile.instagramPage}`)
           await PostModel.insertMany(mappedPosts, { ordered: true });
         } catch (error) {
           console.log("error", error);

@@ -61,7 +61,7 @@ export class Data365Provider implements IData365Provider {
 
       return response.data
     }catch(error) {
-      console.log("error", error)
+      // console.log("error", error)
     }
   }
 
@@ -77,7 +77,7 @@ export class Data365Provider implements IData365Provider {
       
       return profileData
     }catch(error) {
-      console.log("error", error)
+      // console.log("error", error)
     }
   }
 }
