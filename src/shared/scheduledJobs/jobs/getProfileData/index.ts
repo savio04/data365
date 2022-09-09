@@ -42,7 +42,7 @@ export class GetProfileData {
                 .split("/")
                 .pop();
 
-              storageProvider.updloadFile({
+              await storageProvider.updloadFile({
                 filename: `${id}.${extension}`,
                 folder: "image/profile",
                 fileContent: responseProfile.data,
@@ -87,7 +87,7 @@ export class GetProfileData {
                     .split("/")
                     .pop();
 
-                  storageProvider.updloadFile({
+                  await storageProvider.updloadFile({
                     filename: `${id}.${extension}`,
                     folder: "image/post",
                     fileContent: responseData.data,
