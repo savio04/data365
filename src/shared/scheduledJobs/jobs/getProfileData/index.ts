@@ -31,22 +31,24 @@ export class GetProfileData {
 
           const newProfile = Object.assign(profile.toObject(), mappedProfile);
 
-          if (!newProfile.image) {
+          if (!newProfile.userImage) {
             try {
               const responseProfile = await axios.get(
                 newProfile.profielPhotoUrl,
-                { responseType: "arraybuffer" }
+                { responseType: "stream" }
               );
               const id = crypto.randomBytes(20).toString("hex");
               const extension = responseProfile.headers["content-type"]
                 .split("/")
                 .pop();
 
-              await storageProvider.updloadFile({
-                filename: `${id}.${extension}`,
-                folder: "image/profile",
-                fileContent: responseProfile.data,
-              });
+              console.log("passou aqui")
+              responseProfile.data.pipe(storageProvider.updloadFileStream({ filename: `${id}.${extension}`, folder: "image/profile" }))
+              // storageProvider.updloadFile({
+              //   filename: `${id}.${extension}`,
+              //   folder: "image/profile",
+              //   fileContent: responseProfile.data,
+              // });
 
               delete newProfile["profielPhotoUrl"];
 
@@ -83,17 +85,19 @@ export class GetProfileData {
                 try {
                   const id = crypto.randomBytes(20).toString("hex");
                   const responseData = await axios.get(mediaDisplayUrl, {
-                    responseType: "arraybuffer",
+                    responseType: "stream",
                   });
+                  
                   const extension = responseData.headers["content-type"]
                     .split("/")
                     .pop();
 
-                  promises.push(storageProvider.updloadFile({
-                    filename: `${id}.${extension}`,
-                    folder: "image/post",
-                    fileContent: responseData.data,
-                  }))
+                  responseData.data.pipe(storageProvider.updloadFileStream({ filename: `${id}.${extension}`, folder: "image/post", }))
+                  // promises.push(storageProvider.updloadFile({
+                  //   filename: `${id}.${extension}`,
+                  //   folder: "image/post",
+                  //   fileContent: responseData.data,
+                  // }))
 
                   images.push(`${FILES_URL}/image/post/${id}.${extension}`);
                 } catch (error) {
@@ -110,17 +114,19 @@ export class GetProfileData {
 
               try {
                 const responseData = await axios.get(post.attachedVideUrl, {
-                  responseType: "arraybuffer",
+                  responseType: "stream",
                 });
                 const extension = responseData.headers["content-type"]
                   .split("/")
                   .pop();
 
-                promises.push(storageProvider.updloadFile({
-                  filename: `${id}.${extension}`,
-                  folder: "video/post",
-                  fileContent: responseData.data,
-                }))
+                responseData.data.pipe(storageProvider.updloadFileStream({ filename: `${id}.${extension}`, folder: "video/post"}))
+
+                // promises.push(storageProvider.updloadFile({
+                //   filename: `${id}.${extension}`,
+                //   folder: "video/post",
+                //   fileContent: responseData.data,
+                // }))
 
                 post["video"] = `${FILES_URL}/video/post/${id}.${extension}`;
                 delete post['attachedVideUrl']

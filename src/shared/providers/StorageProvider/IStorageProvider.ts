@@ -1,6 +1,6 @@
 export interface IUploadFileProps {
   folder: string;
-  fileContent: Buffer;
+  fileContent?: Buffer;
   filename: string;
 }
 

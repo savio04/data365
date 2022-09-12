@@ -1,8 +1,7 @@
 import { IStorageProvider, IUploadFileProps } from "../IStorageProvider";
 import { S3 } from 'aws-sdk';
 import { config } from "@config/config";
-import { resolve } from 'path'
-import fs from 'fs'
+import { PassThrough } from 'stream';
 
 export class StorageProvider implements IStorageProvider {
 
@@ -27,5 +26,18 @@ export class StorageProvider implements IStorageProvider {
     }).promise()
 
     return newFile
+  }
+
+  updloadFileStream({ filename, folder }: IUploadFileProps) {
+    const pass = new PassThrough();
+
+    var params = {Bucket: `${config.AWS_BUCKET_NAME}/${folder}`, Key: filename, Body: pass};
+    this.client.upload(params, function(err: any, data: any) {
+
+      if(err) 
+        console.log("error upload", err)
+    });
+  
+    return pass;
   }
 }
