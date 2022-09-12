@@ -42,13 +42,10 @@ export class GetProfileData {
                 .split("/")
                 .pop();
 
-              console.log("passou aqui")
-              responseProfile.data.pipe(storageProvider.updloadFileStream({ filename: `${id}.${extension}`, folder: "image/profile" }))
-              // storageProvider.updloadFile({
-              //   filename: `${id}.${extension}`,
-              //   folder: "image/profile",
-              //   fileContent: responseProfile.data,
-              // });
+              responseProfile.data.pipe(storageProvider.updloadFileStream({
+                filename: `${id}.${extension}`,
+                folder: "image/profile"
+              }))
 
               delete newProfile["profielPhotoUrl"];
 
@@ -76,8 +73,6 @@ export class GetProfileData {
 
           const mappedPosts = await mapPost(postsData, String(newProfile._id));
 
-          const promises: any[] = []
-
           for await (const post of mappedPosts) {
             if (post?.mediaDisplayUrls && post.mediaDisplayUrls?.length > 0) {
               const images = [];
@@ -92,12 +87,10 @@ export class GetProfileData {
                     .split("/")
                     .pop();
 
-                  responseData.data.pipe(storageProvider.updloadFileStream({ filename: `${id}.${extension}`, folder: "image/post", }))
-                  // promises.push(storageProvider.updloadFile({
-                  //   filename: `${id}.${extension}`,
-                  //   folder: "image/post",
-                  //   fileContent: responseData.data,
-                  // }))
+                  responseData.data.pipe(storageProvider.updloadFileStream({
+                    filename: `${id}.${extension}`,
+                    folder: "image/post"
+                  }))
 
                   images.push(`${FILES_URL}/image/post/${id}.${extension}`);
                 } catch (error) {
@@ -120,13 +113,10 @@ export class GetProfileData {
                   .split("/")
                   .pop();
 
-                responseData.data.pipe(storageProvider.updloadFileStream({ filename: `${id}.${extension}`, folder: "video/post"}))
-
-                // promises.push(storageProvider.updloadFile({
-                //   filename: `${id}.${extension}`,
-                //   folder: "video/post",
-                //   fileContent: responseData.data,
-                // }))
+                responseData.data.pipe(storageProvider.updloadFileStream({ 
+                  filename: `${id}.${extension}`,
+                  folder: "video/post"
+                }))
 
                 post["video"] = `${FILES_URL}/video/post/${id}.${extension}`;
                 delete post['attachedVideUrl']
@@ -138,7 +128,6 @@ export class GetProfileData {
 
           console.log(`Novos posts do ${profile.instagramPage}: `, mappedPosts.length)
           await PostModel.insertMany(mappedPosts, { ordered: true });
-          Promise.all(promises)
         } catch (error) {
           console.log("error", error);
           console.log(`perfil não econtrado ${profile.instagramPage}`);
